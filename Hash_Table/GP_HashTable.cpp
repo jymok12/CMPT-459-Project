@@ -1,41 +1,39 @@
-// #include <iostream>
-// #include <functional>
-// #include <string>
+#include <iostream>
+#include <functional>
+#include <string>
+#include "HashTable.h"
 
-// using namespace std;
+using namespace std;
 
-// struct node{
-//     int key;
-//     int value;
-//     node* next = nullptr;
-// };
+struct state {
+  Ht_item* node;
+};
 
-// void __builtin_prefetch (const void *addr);
-// int* HASH_PROBE_GP(node* input[], int n, hash<string> hash){
-//     int* value = new int[n];
-//     node* state = new node[n];
-//     for (int i = 0; i < n; i++) {
-//         state[i] = hash<int>(input[i]);
-//         __builtin_prefetch(state[i].node);
-//     }
-//     int num_finished = 0;
-//     while (num_finished < sizeof(input)){
-//         for (int i = 0; i < n; i++){
-//             if (i == NULL){
-//                 continue;
-//             }
-//             else if (i == state[i]){
-//                 value = state;
-//                 state = NULL;
-//                 num_finished++;
-//             }
-//             else{
-//                 // state[idx].node = hash.get(input[idx])
-//                 //__builtin_prefetch(state[i].node);
-//             }
-//         };
-//     };
+char** HASH_PROBE_GP(char* input[], int n, HashTable* table){
+    char** value = new char*[n];
+    state* stateArr = new state[n];
+    for (int i = 0; i < n; i++) {
+        stateArr[i].node = ht_get(table, input[i]);
+        __builtin_prefetch(stateArr[i].node);
+    }
+    int num_finished = 0;
+    while (num_finished < n){
+        for (int i = 0; i < n; i++){
+            if (stateArr[i].node == NULL){
+                continue;
+            }
+            else if (input[i] == stateArr[i].node->key){
+                value[i] = stateArr[i].node->value;
+                stateArr[i].node = nullptr;
+                num_finished++;
+            }
+            else{
+                stateArr[i].node = ht_get(table, input[i]);
+                __builtin_prefetch(stateArr[i].node);
+            }
+        };
+    };
 
-//     return value;
+    return value;
 
-// };
+};
