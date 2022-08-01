@@ -1,7 +1,8 @@
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <vector>
+#include <coroutine>
 
 #define CAPACITY 100000 // Size of the Hash Table
 
@@ -52,13 +53,14 @@ void ht_insert(HashTable *table, int key, int value);
 
 int ht_search(HashTable *table, int key);
 
-int *HASH_PROBE(int *input, int n, HashTable *table);
+std::vector<int> HASH_PROBE(std::vector<int> input, int n, HashTable *table);
 
-struct GP_state {
-  Node* node;
+struct GP_state
+{
+  Node *node;
 };
 
-int* HASH_PROBE_GP(int input[], int n, HashTable* table);
+std::vector<int> HASH_PROBE_GP(std::vector<int> input, int n, HashTable *table);
 
 struct AMAC_state
 {
@@ -70,26 +72,67 @@ struct AMAC_state
 
 struct AMAC_circular_buffer
 {
-    int group_size;
-    int next = 0;
-    AMAC_state *stateArr;
+  int group_size;
+  int next = 0;
+  std::vector<AMAC_state> stateArr;
 
-    AMAC_circular_buffer(int n) {
-      group_size = n;
-      stateArr = new AMAC_state[n];
-      for(int i; i < group_size; i++) {
-        stateArr[i].stage = 0;
-      }
+  AMAC_circular_buffer(int n)
+  {
+    group_size = n;
+    stateArr.reserve(n);
+    for (int i; i < group_size; i++)
+    {
+      stateArr[i].stage = 0;
     }
+  }
 
-    AMAC_state next_state() {
-        int curr_next = next;
-        next = (next + 1) % group_size;
-        return stateArr[curr_next];
-    }
+  AMAC_state next_state()
+  {
+    int curr_next = next;
+    next = (next + 1) % group_size;
+    return stateArr[curr_next];
+  }
 };
 
-int *HASH_PROBE_AMAC(int *input, int n, HashTable *table, uint group_size);
+std::vector<int> HASH_PROBE_AMAC(std::vector<int> input, int n, HashTable *table, uint group_size);
+
+struct ReturnObject
+{
+  struct promise_type
+  {
+    int val_;
+    ReturnObject get_return_object()
+    {
+      return {std::coroutine_handle<promise_type>::from_promise(*this)};
+    }
+    std::suspend_never initial_suspend() { return {}; }
+    std::suspend_never final_suspend() noexcept { return {}; }
+    void unhandled_exception() {}
+    void return_value(int val) { val_ = val; }
+  };
+
+  bool done() const
+  {
+    return h_.done();
+  }
+
+  void resume()
+  {
+    if (!h_.done())
+    {
+      h_.resume();
+    }
+  }
+
+  std::coroutine_handle<promise_type> h_;
+  ReturnObject(std::coroutine_handle<promise_type> h) : h_{h} {}
+  operator std::coroutine_handle<promise_type>() const { return h_; }
+  operator std::coroutine_handle<>() const { return h_; }
+};
+
+using PromType = ReturnObject::promise_type;
+
+ReturnObject HASH_PROBE_CORO(HashTable *table, int key);
 
 Data *ht_get(HashTable *table, int key);
 
