@@ -5,6 +5,7 @@
 
 using namespace std;
 
+
 struct GP_state
 {
   Node *node;
@@ -25,15 +26,15 @@ int *HASH_PROBE_GP(int *input, int n, HashTable *table)
   {
     for (int i = 0; i < n; i++)
     {
-      if (stateArr[i].node == nullptr || stateArr[i].node->data == nullptr)
+      if (stateArr[i].node == nullptr)
       {
+        value[i] = -1;
         num_finished++;
         continue;
       }
       else if (input[i] == stateArr[i].node->data->key)
       {
         value[i] = stateArr[i].node->data->value;
-        stateArr[i].node = nullptr;
         num_finished++;
       }
       else

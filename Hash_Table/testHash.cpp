@@ -9,7 +9,22 @@ typedef std::mt19937 rng_type;
 std::uniform_int_distribution<rng_type::result_type> udist(0, CAPACITY * 5);
 
 #define DEFAULT_INPUT_SIZE "10000000"
-#define DEFAULT_GROUP_SIZE "1"
+#define DEFAULT_GROUP_SIZE "25"
+
+void print_results(int * input, int *results, uint group_size)
+{
+  for (uint i = 0; i < group_size; i++)
+  {
+    if (results[i] == -1)
+    {
+      printf("%d does not exist\n", input[i]);
+    }
+    else
+    {
+      printf("Key:%d, Value:%d\n", input[i], results[i]);
+    }
+  }
+}
 
 void testHashTable(uint input_size, uint group_size)
 {
@@ -24,46 +39,40 @@ void testHashTable(uint input_size, uint group_size)
   {
     // rng_type::result_type random_number = udist(rng);
     // ht_insert(ht, random_number, i);
-    // printf("%d\n", i);
     ht_insert(ht, udist(rng), i);
   }
 
-  int val;
-  int key;
+  int *input = new int[group_size];
+  int *GP_input = new int[group_size];
+  int *AMAC_input = new int[group_size];
   for (uint i = 0; i < group_size; i++)
   {
-    key = udist(rng);
-    if ((val = ht_search(ht, key)) == -1)
-    {
-      printf("%d does not exist\n", key);
-    }
-    else
-    {
-      printf("Key:%d, Value:%d\n", key, val);
-    }
+    input[i] = udist(rng);
+    GP_input[i] = udist(rng);
+    AMAC_input[i] = udist(rng);
   }
 
+  int *results = HASH_PROBE(input, group_size, ht);
+  print_results(input, results, group_size);
+
+  delete[] input;
+  delete[] results;
+  
   printf("GP\n");
 
-  int *GP_input = new int[group_size];
-  for (uint i = 0; i < group_size; i++)
-  {
-    GP_input[i] = udist(rng);
-  }
   int *GP_results = HASH_PROBE_GP(GP_input, group_size, ht);
-  for (uint i = 0; i < group_size; i++)
-  {
-    if (GP_results[i] == -1)
-    {
-      printf("%d does not exist\n", GP_input[i]);
-    }
-    else
-    {
-      printf("Key:%d, Value:%d\n", GP_input[i], GP_results[i]);
-    }
-  }
+  print_results(GP_input, GP_results, group_size);
+  
   delete[] GP_input;
   delete[] GP_results;
+  
+  printf("AMAC\n");
+
+  int *AMAC_results = HASH_PROBE_AMAC(AMAC_input, group_size, ht, group_size);
+  print_results(AMAC_input, AMAC_results, group_size);
+  
+  delete[] AMAC_input;
+  delete[] AMAC_results;
 
   // print_table(ht);
   free_table(ht);
