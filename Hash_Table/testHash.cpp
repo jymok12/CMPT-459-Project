@@ -38,17 +38,15 @@ HashTable *createUniformTable(uint input_size, rng_type rng)
   return ht;
 }
 
-int naive_timed(uint input_size, uint group_size, rng_type rng)
+int naive_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_table)
 {
-  HashTable *ht = createUniformTable(input_size, rng);
+  HashTable *ht = hash_table;
 
   int *input = new int[group_size];
   for (uint i = 0; i < group_size; i++)
   {
     input[i] = udist(rng);
   }
-
-  // printf("NAIVE\n");
 
   auto start = std::chrono::steady_clock::now();
   int *results = HASH_PROBE(input, group_size, ht);
@@ -62,17 +60,15 @@ int naive_timed(uint input_size, uint group_size, rng_type rng)
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
-int GP_timed(uint input_size, uint group_size, rng_type rng)
+int GP_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_table)
 {
-  HashTable *ht = createUniformTable(input_size, rng);
+  HashTable *ht = hash_table;
 
   int *GP_input = new int[group_size];
   for (uint i = 0; i < group_size; i++)
   {
     GP_input[i] = udist(rng);
   }
-
-  // printf("GP\n");
 
   auto start = std::chrono::steady_clock::now();
   int *GP_results = HASH_PROBE_GP(GP_input, group_size, ht);
@@ -86,17 +82,15 @@ int GP_timed(uint input_size, uint group_size, rng_type rng)
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
-int AMAC_timed(uint input_size, uint group_size, rng_type rng)
+int AMAC_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_table)
 {
-  HashTable *ht = createUniformTable(input_size, rng);
+  HashTable *ht = hash_table;
 
   int *AMAC_input = new int[group_size];
   for (uint i = 0; i < group_size; i++)
   {
     AMAC_input[i] = udist(rng);
   }
-
-  // printf("AMAC\n");
 
   auto start = std::chrono::steady_clock::now();
   int *AMAC_results = HASH_PROBE_AMAC(AMAC_input, group_size, ht, group_size);
@@ -110,18 +104,14 @@ int AMAC_timed(uint input_size, uint group_size, rng_type rng)
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
-int CORO_timed(uint input_size, uint group_size, rng_type rng)
+int CORO_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_table)
 {
-  HashTable *ht = createUniformTable(input_size, rng);
-
+  HashTable *ht = hash_table;
   int *CORO_input = new int[group_size];
   for (uint i = 0; i < group_size; i++)
   {
     CORO_input[i] = udist(rng);
   }
-
-  // printf("CORO\n");
-  ht = createUniformTable(input_size, rng);
 
   int *CORO_results = (int *)malloc(sizeof(int) * group_size);
   std::vector<ReturnObject> coroutine_promises(group_size);
@@ -169,6 +159,8 @@ void testHashTable(uint input_size, uint group_size, uint num_runs)
   rng_type::result_type const seedval = time(NULL);
   rng.seed(seedval);
 
+  HashTable *ht = createUniformTable(input_size, rng);
+
   std::vector<int> naive_times(num_runs, 0);
   std::vector<int> GP_times(num_runs, 0);
   std::vector<int> AMAC_times(num_runs, 0);
@@ -176,10 +168,10 @@ void testHashTable(uint input_size, uint group_size, uint num_runs)
 
   for (int i = 0; i < num_runs; i++)
   {
-    naive_times[i] = naive_timed(input_size, group_size, rng);
-    GP_times[i] = GP_timed(input_size, group_size, rng);
-    AMAC_times[i] = AMAC_timed(input_size, group_size, rng);
-    CORO_times[i] = CORO_timed(input_size, group_size, rng);
+    naive_times[i] = naive_timed(input_size, group_size, rng, ht);
+    GP_times[i] = GP_timed(input_size, group_size, rng, ht);
+    AMAC_times[i] = AMAC_timed(input_size, group_size, rng, ht);
+    CORO_times[i] = CORO_timed(input_size, group_size, rng, ht);
   }
   printf("%f\n", getAverage(naive_times));
   printf("%f\n", getAverage(GP_times));
