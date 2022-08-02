@@ -265,7 +265,7 @@ ReturnObject HASH_PROBE_CORO(HashTable *table, int key)
 {
   Node *node = table->nodes[hash_function(key)];
   __builtin_prefetch(node);
-  co_await std::suspend_always{};
+  co_await std::experimental::suspend_always{};
   while (node)
   {
     if (key == node->data->key)
@@ -276,7 +276,7 @@ ReturnObject HASH_PROBE_CORO(HashTable *table, int key)
     {
       node = node->next;
       __builtin_prefetch(node);
-      co_await std::suspend_always{};
+      co_await std::experimental::suspend_always{};
     }
   }
   co_return -1;
