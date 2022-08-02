@@ -96,47 +96,24 @@ struct AMAC_circular_buffer
 
 int *HASH_PROBE_AMAC(int *input, int n, HashTable *table, uint group_size);
 
-struct ReturnObject
-{
-  struct promise_type
-  {
-    int val_;
-    ReturnObject get_return_object()
-    {
-      return {std::coroutine_handle<promise_type>::from_promise(*this)};
+struct ReturnObject {
+  struct promise_type {
+    unsigned val_;
+
+    ~promise_type() {}
+    ReturnObject get_return_object() {
+      return {
+        .h_ = std::coroutine_handle<promise_type>::from_promise(*this)
+      };
     }
     std::suspend_never initial_suspend() { return {}; }
-    std::suspend_never final_suspend() noexcept { return {}; }
+    std::suspend_always final_suspend() noexcept { return {}; }
     void unhandled_exception() {}
     void return_value(int val) { val_ = val; }
   };
 
-  bool done()
-  {
-    return h_ && h_.done();
-  }
-
-  void resume()
-  {
-    if (h_ && !h_.done() && h_.done())
-    {
-      // printf("RESUMING\n");
-      h_.resume();
-    }
-  }
-
-  int get()
-  {
-    return h_.promise().val_;
-  }
-
   std::coroutine_handle<promise_type> h_;
-  // ReturnObject(std::coroutine_handle<promise_type> h) : h_{h} {}
-  // operator std::coroutine_handle<promise_type>() const { return h_; }
-  // operator std::coroutine_handle<>() const { return h_; }
 };
-
-using PromType = ReturnObject::promise_type;
 
 ReturnObject HASH_PROBE_CORO(HashTable *table, int key);
 

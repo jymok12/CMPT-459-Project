@@ -76,37 +76,37 @@ void testHashTable(uint input_size, uint group_size)
   delete[] AMAC_input;
   delete[] AMAC_results;
 
-  // printf("CORO\n");
+  printf("CORO\n");
 
-  // int *CORO_results = (int *)malloc(sizeof(int) * group_size);
-  // std::vector<ReturnObject> coroutine_promises(group_size);
-  // // std::coroutine_handle<> h = HASH_PROBE_CORO(ht, CORO_input[0]);
-  // // printf("CORO1\n");
-  // for (int i = 0; i < group_size; i++)
-  // {
-  //   coroutine_promises[i] = HASH_PROBE_CORO(ht, CORO_input[i]);
-  // }
-  // // printf("CORO2\n");
-  // while (std::any_of(coroutine_promises.begin(), coroutine_promises.end(), [](ReturnObject x)
-  //                    { return !x.done(); }))
-  // {
-  //   // printf("CORO21\n");
-  //   for (int i = 0; i < group_size; i++)
-  //   {
-  //     if (!coroutine_promises[i].done())
-  //     {
-  //       coroutine_promises[i].resume();
-  //     }
-  //   }
-  //   // printf("CORO22\n");
-  // }
-  // // printf("CORO3\n");
-  // for (int i = 0; i < group_size; i++)
-  // {
-  //   CORO_results[i] = coroutine_promises[i].get();
-  // }
-  // // printf("CORO4\n");
-  // print_results(CORO_input, CORO_results, group_size);
+  int *CORO_results = (int *)malloc(sizeof(int) * group_size);
+  std::vector<ReturnObject> coroutine_promises(group_size);
+  // std::coroutine_handle<> h = HASH_PROBE_CORO(ht, CORO_input[0]);
+  // printf("CORO1\n");
+  for (int i = 0; i < group_size; i++)
+  {
+    coroutine_promises[i] = HASH_PROBE_CORO(ht, CORO_input[i]);
+  }
+  // printf("CORO2\n");
+  while (std::any_of(coroutine_promises.begin(), coroutine_promises.end(), [](ReturnObject x)
+                     { return !x.h_.done(); }))
+  {
+    // printf("CORO21\n");
+    for (int i = 0; i < group_size; i++)
+    {
+      if (!coroutine_promises[i].h_.done())
+      {
+        coroutine_promises[i].h_.resume();
+      }
+    }
+    // printf("CORO22\n");
+  }
+  // printf("CORO3\n");
+  for (int i = 0; i < group_size; i++)
+  {
+    CORO_results[i] = coroutine_promises[i].h_.promise().val_;
+  }
+  // printf("CORO4\n");
+  print_results(CORO_input, CORO_results, group_size);
 
   // print_table(ht);
   free_table(ht);
