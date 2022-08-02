@@ -55,11 +55,12 @@ int ht_search(HashTable *table, int key);
 
 int *HASH_PROBE(int *input, int n, HashTable *table);
 
-struct GP_state {
-  Node* node;
+struct GP_state
+{
+  Node *node;
 };
 
-int* HASH_PROBE_GP(int input[], int n, HashTable* table);
+int *HASH_PROBE_GP(int input[], int n, HashTable *table);
 
 struct AMAC_state
 {
@@ -71,23 +72,26 @@ struct AMAC_state
 
 struct AMAC_circular_buffer
 {
-    int group_size;
-    int next = 0;
-    AMAC_state *stateArr;
+  int group_size;
+  int next = 0;
+  AMAC_state *stateArr;
 
-    AMAC_circular_buffer(int n) {
-      group_size = n;
-      stateArr = new AMAC_state[n];
-      for(int i; i < group_size; i++) {
-        stateArr[i].stage = 0;
-      }
+  AMAC_circular_buffer(int n)
+  {
+    group_size = n;
+    stateArr = new AMAC_state[n];
+    for (int i; i < group_size; i++)
+    {
+      stateArr[i].stage = 0;
     }
+  }
 
-    AMAC_state next_state() {
-        int curr_next = next;
-        next = (next + 1) % group_size;
-        return stateArr[curr_next];
-    }
+  AMAC_state *next_state()
+  {
+    int curr_next = next;
+    next = (next + 1) % group_size;
+    return &stateArr[curr_next];
+  }
 };
 
 int *HASH_PROBE_AMAC(int *input, int n, HashTable *table, uint group_size);
@@ -114,7 +118,7 @@ struct ReturnObject
 
   void resume()
   {
-    if (h_ && !h_.done())
+    if (h_ && !h_.done() && h_.done())
     {
       // printf("RESUMING\n");
       h_.resume();

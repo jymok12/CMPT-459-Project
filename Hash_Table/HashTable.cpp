@@ -187,7 +187,8 @@ int *HASH_PROBE(int *input, int n, HashTable *table)
       }
       curr = curr->next;
     }
-    if (curr == nullptr) {
+    if (curr == nullptr)
+    {
       value[i] = -1;
     }
   }
@@ -235,30 +236,39 @@ int *HASH_PROBE_AMAC(int *input, int n, HashTable *table, uint group_size)
 {
   int *value = new int[n];
   AMAC_circular_buffer buff = AMAC_circular_buffer(group_size);
-  int num_finished, i, j = 0;
-  while (num_finished < n) {
-    AMAC_state state = buff.next_state();
-    if (state.stage == 0){
-      state.key = input[i++];
-      state.node = table->nodes[hash_function(state.key)];
-      state.stage = 1;
-      __builtin_prefetch(state.node);
-    } else if (state.stage == 1) {
-      if (state.node == nullptr) {
-        state.value = -1;
-        state.stage = 0;
-        value[j++] = state.value;
+  int num_finished = 0;
+  int i = num_finished;
+  int j = i;
+  while (num_finished < n)
+  {
+    AMAC_state *state = buff.next_state();
+    if (state->stage == 0)
+    {
+      state->key = input[i++];
+      state->node = table->nodes[hash_function(state->key)];
+      state->stage = 1;
+      __builtin_prefetch(state->node);
+    }
+    else if (state->stage == 1)
+    {
+      if (state->node == nullptr)
+      {
+        state->value = -1;
+        state->stage = 2;
+        value[j++] = state->value;
         num_finished++;
-        continue;
       }
-      else if (state.key == state.node->data->key) {
-        state.value = state.node->data->value;
-        state.stage = 0;
-        value[j++] = state.value;
+      else if (state->key == state->node->data->key)
+      {
+        state->value = state->node->data->value;
+        state->stage = 2;
+        value[j++] = state->value;
         num_finished++;
-      } else {
-        state.node = state.node->next;
-        __builtin_prefetch(state.node);
+      }
+      else
+      {
+        state->node = state->node->next;
+        __builtin_prefetch(state->node);
       }
     }
   }

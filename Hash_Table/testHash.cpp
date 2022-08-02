@@ -11,7 +11,7 @@ std::uniform_int_distribution<rng_type::result_type> udist(0, CAPACITY * 5);
 #define DEFAULT_INPUT_SIZE "10000000"
 #define DEFAULT_GROUP_SIZE "25"
 
-void print_results(int * input, int *results, uint group_size)
+void print_results(int *input, int *results, uint group_size)
 {
   for (uint i = 0; i < group_size; i++)
   {
@@ -59,54 +59,54 @@ void testHashTable(uint input_size, uint group_size)
 
   delete[] input;
   delete[] results;
-  
+
   printf("GP\n");
 
   int *GP_results = HASH_PROBE_GP(GP_input, group_size, ht);
   print_results(GP_input, GP_results, group_size);
-  
+
   delete[] GP_input;
   delete[] GP_results;
-  
+
   printf("AMAC\n");
 
   int *AMAC_results = HASH_PROBE_AMAC(AMAC_input, group_size, ht, group_size);
   print_results(AMAC_input, AMAC_results, group_size);
-  
+
   delete[] AMAC_input;
   delete[] AMAC_results;
 
-    printf("CORO\n");
+  // printf("CORO\n");
 
-  int *CORO_results = (int *) malloc(sizeof(int) * group_size);
-  std::vector<ReturnObject> coroutine_promises(group_size);
-  // std::coroutine_handle<> h = HASH_PROBE_CORO(ht, CORO_input[0]);
-  // printf("CORO1\n");
-  for (int i = 0; i < group_size; i++)
-  {
-    coroutine_promises[i] = HASH_PROBE_CORO(ht, CORO_input[i]);
-  }
-  // printf("CORO2\n");
-  while (std::any_of(coroutine_promises.begin(), coroutine_promises.end(), [](ReturnObject x)
-                     { return !x.done(); }))
-  {
-    // printf("CORO21\n");
-    for (int i = 0; i < group_size; i++)
-    {
-      if (!coroutine_promises[i].done())
-      {
-        coroutine_promises[i].resume();
-      }
-    }
-    // printf("CORO22\n");
-  }
-  // printf("CORO3\n");
-  for (int i = 0; i < group_size; i++)
-  {
-    CORO_results[i] = coroutine_promises[i].get();
-  }
-  // printf("CORO4\n");
-  print_results(CORO_input, CORO_results, group_size);
+  // int *CORO_results = (int *)malloc(sizeof(int) * group_size);
+  // std::vector<ReturnObject> coroutine_promises(group_size);
+  // // std::coroutine_handle<> h = HASH_PROBE_CORO(ht, CORO_input[0]);
+  // // printf("CORO1\n");
+  // for (int i = 0; i < group_size; i++)
+  // {
+  //   coroutine_promises[i] = HASH_PROBE_CORO(ht, CORO_input[i]);
+  // }
+  // // printf("CORO2\n");
+  // while (std::any_of(coroutine_promises.begin(), coroutine_promises.end(), [](ReturnObject x)
+  //                    { return !x.done(); }))
+  // {
+  //   // printf("CORO21\n");
+  //   for (int i = 0; i < group_size; i++)
+  //   {
+  //     if (!coroutine_promises[i].done())
+  //     {
+  //       coroutine_promises[i].resume();
+  //     }
+  //   }
+  //   // printf("CORO22\n");
+  // }
+  // // printf("CORO3\n");
+  // for (int i = 0; i < group_size; i++)
+  // {
+  //   CORO_results[i] = coroutine_promises[i].get();
+  // }
+  // // printf("CORO4\n");
+  // print_results(CORO_input, CORO_results, group_size);
 
   // print_table(ht);
   free_table(ht);
