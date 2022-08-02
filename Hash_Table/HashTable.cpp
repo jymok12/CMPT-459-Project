@@ -220,13 +220,13 @@ int *HASH_PROBE_GP(int *input, int n, HashTable *table)
 int *HASH_PROBE_AMAC(int *input, int n, HashTable *table, uint group_size)
 {
   int *value = new int[n];
-  AMAC_circular_buffer buff = AMAC_circular_buffer(group_size);
+  AMAC_circular_buffer *buff = new AMAC_circular_buffer(group_size);
   int num_finished = 0;
   int i = num_finished;
   int j = i;
   while (num_finished < n)
   {
-    AMAC_state *state = buff.next_state();
+    AMAC_state *state = buff->next_state();
     if (state->stage == 0)
     {
       state->key = input[i++];
@@ -239,14 +239,14 @@ int *HASH_PROBE_AMAC(int *input, int n, HashTable *table, uint group_size)
       if (state->node == nullptr)
       {
         state->value = -1;
-        state->stage = 2;
+        state->stage = -1;
         value[j++] = state->value;
         num_finished++;
       }
       else if (state->key == state->node->data->key)
       {
         state->value = state->node->data->value;
-        state->stage = 2;
+        state->stage = -1;
         value[j++] = state->value;
         num_finished++;
       }

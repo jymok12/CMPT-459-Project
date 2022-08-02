@@ -157,22 +157,22 @@ void testHashTable(uint input_size, uint group_size, uint num_runs)
 
   HashTable *ht = createUniformTable(input_size, rng);
 
-  std::vector<int> naive_times(num_runs, 0);
-  std::vector<int> GP_times(num_runs, 0);
-  // std::vector<int> AMAC_times(num_runs, 0);
-  std::vector<int> CORO_times(num_runs, 0);
+  // std::vector<int> naive_times(num_runs, 0);
+  // std::vector<int> GP_times(num_runs, 0);
+  std::vector<int> AMAC_times(num_runs, 0);
+  // std::vector<int> CORO_times(num_runs, 0);
 
   for (int i = 0; i < num_runs; i++)
   {
-    naive_times[i] = naive_timed(input_size, group_size, rng, ht);
-    GP_times[i] = GP_timed(input_size, group_size, rng, ht);
-    // AMAC_times[i] = AMAC_timed(input_size, group_size, rng, ht);
-    CORO_times[i] = CORO_timed(input_size, group_size, rng, ht);
+    // naive_times[i] = naive_timed(input_size, group_size, rng, ht);
+    // GP_times[i] = GP_timed(input_size, group_size, rng, ht);
+    AMAC_times[i] = AMAC_timed(input_size, group_size, rng, ht);
+    // CORO_times[i] = CORO_timed(input_size, group_size, rng, ht);
   }
-  printf("%f\n", getAverage(naive_times));
-  printf("%f\n", getAverage(GP_times));
-  // printf("%f\n", getAverage(AMAC_times));
-  printf("%f\n", getAverage(CORO_times));
+  // printf("%f\n", getAverage(naive_times));
+  // printf("%f\n", getAverage(GP_times));
+  printf("%f\n", getAverage(AMAC_times));
+  // printf("%f\n", getAverage(CORO_times));
   
   free_table(ht);
 }
