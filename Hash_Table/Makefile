@@ -1,5 +1,5 @@
 CXX = g++-11
-CXXFLAGS = -fcoroutines -std=c++20
+CXXFLAGS = -fcoroutines -std=c++20 -g
 
 TARGET = testHash
 

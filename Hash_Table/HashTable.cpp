@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "HashTable.h"
 
 unsigned long hash_function(int n)
@@ -168,9 +171,9 @@ int ht_search(HashTable *table, int key)
   return -1;
 }
 
-std::vector<int> HASH_PROBE(std::vector<int> input, int n, HashTable *table)
+int *HASH_PROBE(int *input, int n, HashTable *table)
 {
-  std::vector<int> value(n);
+  int *value = new int[n];
   for (int i = 0; i < n; i++)
   {
     int index = hash_function(input[i]);
@@ -191,9 +194,9 @@ std::vector<int> HASH_PROBE(std::vector<int> input, int n, HashTable *table)
   return value;
 }
 
-std::vector<int> HASH_PROBE_GP(std::vector<int> input, int n, HashTable *table)
+int *HASH_PROBE_GP(int *input, int n, HashTable *table)
 {
-  std::vector<int> value(n);
+  int *value = new int[n];
   GP_state *stateArr = new GP_state[n];
   for (int i = 0; i < n; i++)
   {
@@ -228,9 +231,9 @@ std::vector<int> HASH_PROBE_GP(std::vector<int> input, int n, HashTable *table)
   return value;
 };
 
-std::vector<int> HASH_PROBE_AMAC(std::vector<int> input, int n, HashTable *table, uint group_size)
+int *HASH_PROBE_AMAC(int *input, int n, HashTable *table, uint group_size)
 {
-  std::vector<int> value(n);
+  int *value = new int[n];
   AMAC_circular_buffer buff = AMAC_circular_buffer(group_size);
   int num_finished, i, j = 0;
   while (num_finished < n) {
@@ -267,12 +270,19 @@ ReturnObject HASH_PROBE_CORO(HashTable *table, int key)
 {
   Node *node = table->nodes[hash_function(key)];
   __builtin_prefetch(node);
+  // printf("%d\n", node->data->key);
   co_await std::suspend_always{};
-  while (node) {
-    if (key == node->data->key) {
+  while (node)
+  {
+    if (key == node->data->key)
+    {
+      // printf("%d\n", node->data->key);
       co_return node->data->value;
-    } else {
+    }
+    else
+    {
       node = node->next;
+      // printf("%d\n", node->data->key);
       __builtin_prefetch(node);
       co_await std::suspend_always{};
     }
