@@ -4,7 +4,7 @@
 #include <string.h>
 #include <coroutine>
 
-#define CAPACITY 100000 // Size of the Hash Table
+#define CAPACITY 100000
 
 unsigned long hash_function(int str);
 

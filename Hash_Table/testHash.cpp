@@ -37,8 +37,6 @@ void testHashTable(uint input_size, uint group_size)
 
   for (uint i = 0; i < input_size; i++)
   {
-    // rng_type::result_type random_number = udist(rng);
-    // ht_insert(ht, random_number, i);
     ht_insert(ht, udist(rng), i);
   }
 
@@ -80,17 +78,13 @@ void testHashTable(uint input_size, uint group_size)
 
   int *CORO_results = (int *)malloc(sizeof(int) * group_size);
   std::vector<ReturnObject> coroutine_promises(group_size);
-  // std::coroutine_handle<> h = HASH_PROBE_CORO(ht, CORO_input[0]);
-  // printf("CORO1\n");
   for (int i = 0; i < group_size; i++)
   {
     coroutine_promises[i] = HASH_PROBE_CORO(ht, CORO_input[i]);
   }
-  // printf("CORO2\n");
   while (std::any_of(coroutine_promises.begin(), coroutine_promises.end(), [](ReturnObject x)
                      { return !x.h_.done(); }))
   {
-    // printf("CORO21\n");
     for (int i = 0; i < group_size; i++)
     {
       if (!coroutine_promises[i].h_.done())
@@ -98,23 +92,18 @@ void testHashTable(uint input_size, uint group_size)
         coroutine_promises[i].h_.resume();
       }
     }
-    // printf("CORO22\n");
   }
-  // printf("CORO3\n");
   for (int i = 0; i < group_size; i++)
   {
     CORO_results[i] = coroutine_promises[i].h_.promise().val_;
   }
-  // printf("CORO4\n");
   print_results(CORO_input, CORO_results, group_size);
 
-  // print_table(ht);
   free_table(ht);
 }
 
 int main(int argc, char *argv[])
 {
-  // Initialize command line arguments
   cxxopts::Options options("Hash Table Reading Benchmark",
                            "Time Hash Table Probing based on varying input and group sizes");
   options.add_options(
@@ -126,8 +115,6 @@ int main(int argc, char *argv[])
   auto cl_options = options.parse(argc, argv);
   uint input_size = cl_options["iSize"].as<uint>();
   uint group_size = cl_options["gSize"].as<uint>();
-  // std::cout << "Input Size : " << input_size << "\n";
-  // std::cout << "Group Size : " << group_size << "\n";
 
   testHashTable(input_size, group_size);
 

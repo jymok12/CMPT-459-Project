@@ -77,7 +77,6 @@ Data *create_data(int key, int value)
 
 HashTable *create_table(int size)
 {
-  // Creates a new HashTable
   HashTable *table = (HashTable *)malloc(sizeof(HashTable));
   table->size = size;
   table->count = 0;
@@ -114,29 +113,19 @@ void handle_collision(HashTable *table, unsigned long index, Data *data)
 
 void ht_insert(HashTable *table, int key, int value)
 {
-  // Create the data
   Data *data = create_data(key, value);
-
-  // Compute the index
   unsigned long index = hash_function(key);
-
   Node *curr = table->nodes[index];
 
   if (curr == nullptr)
   {
     if (table->count == table->size)
     {
-      // Hash Table Full
-      // printf("Insert Error: Hash Table is full\n");
-      // Remove the create data
       free(data);
-      // printf("HASH TABLE FULL\n");
       return;
     }
 
-    // Insert directly
     table->nodes[index] = node_insert(table->nodes[index], data);
-    // printf("%d: %d\n", table->nodes[index]->data->key, table->nodes[index]->data->value);
     table->count++;
   }
   else
@@ -156,12 +145,9 @@ void ht_insert(HashTable *table, int key, int value)
 
 int ht_search(HashTable *table, int key)
 {
-  // Searches the key in the hashtable
-  // and returns -1 if it doesn't exist
   int index = hash_function(key);
   Node *curr = table->nodes[index];
 
-  // Ensure that we move to items which are not nullptr
   while (curr != nullptr && curr->data != nullptr)
   {
     if (curr->data->key == key)
@@ -201,7 +187,6 @@ int *HASH_PROBE_GP(int *input, int n, HashTable *table)
   GP_state *stateArr = new GP_state[n];
   for (int i = 0; i < n; i++)
   {
-    // stateArr[i].node = table->overflow_buckets[hash_function(input[i])];
     stateArr[i].node = table->nodes[hash_function(input[i])];
     __builtin_prefetch(stateArr[i].node);
   }
@@ -280,19 +265,16 @@ ReturnObject HASH_PROBE_CORO(HashTable *table, int key)
 {
   Node *node = table->nodes[hash_function(key)];
   __builtin_prefetch(node);
-  // printf("%d\n", node->data->key);
   co_await std::suspend_always{};
   while (node)
   {
     if (key == node->data->key)
     {
-      // printf("%d\n", node->data->key);
       co_return node->data->value;
     }
     else
     {
       node = node->next;
-      // printf("%d\n", node->data->key);
       __builtin_prefetch(node);
       co_await std::suspend_always{};
     }
@@ -312,7 +294,6 @@ Data *ht_get(HashTable *table, int key)
 
 void ht_delete(HashTable *table, int key)
 {
-  // Deletes an data from the table
   int index = hash_function(key);
   Node *head = table->nodes[index];
 
@@ -325,7 +306,6 @@ void ht_delete(HashTable *table, int key)
     {
       if (prev == nullptr)
       {
-        // First element of the chain. Remove the chain
         free_linkedlist(head);
         table->count--;
         table->nodes[index] = nullptr;
@@ -333,11 +313,9 @@ void ht_delete(HashTable *table, int key)
       }
       else
       {
-        // This is somewhere in the chain
         prev->next = curr->next;
         curr->next = nullptr;
         free_linkedlist(curr);
-        // table->nodes[index] = head;
         return;
       }
     }
