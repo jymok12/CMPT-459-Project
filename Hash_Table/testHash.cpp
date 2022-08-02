@@ -56,7 +56,6 @@ int naive_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_
 
   delete[] input;
   delete[] results;
-  free_table(ht);
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
@@ -78,7 +77,6 @@ int GP_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_tab
 
   delete[] GP_input;
   delete[] GP_results;
-  free_table(ht);
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
@@ -100,7 +98,6 @@ int AMAC_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_t
 
   delete[] AMAC_input;
   delete[] AMAC_results;
-  free_table(ht);
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
@@ -141,7 +138,6 @@ int CORO_timed(uint input_size, uint group_size, rng_type rng, HashTable *hash_t
   }
   // print_results(CORO_input, CORO_results, group_size);
 
-  free_table(ht);
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
 }
 
@@ -177,6 +173,8 @@ void testHashTable(uint input_size, uint group_size, uint num_runs)
   printf("%f\n", getAverage(GP_times));
   printf("%f\n", getAverage(AMAC_times));
   printf("%f\n", getAverage(CORO_times));
+  
+  free_table(ht);
 }
 
 int main(int argc, char *argv[])
